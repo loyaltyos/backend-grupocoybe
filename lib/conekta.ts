@@ -73,7 +73,39 @@ export async function createConektaOrder(
 function webhookPublicKey(): string {
   const value = process.env.CONEKTA_WEBHOOK_SECRET;
   if (!value) throw new Error("Missing CONEKTA_WEBHOOK_SECRET");
-  return value.replace(/\\n/g, "\n");
+
+  let normalized = value.trim().replace(/\\r\\n/g, "\n").replace(/\\n/g, "\n");
+  if (
+    (normalized.startsWith('"') && normalized.endsWith('"')) ||
+    (normalized.startsWith("'") && normalized.endsWith("'"))
+  ) {
+    normalized = normalized.slice(1, -1).trim();
+  }
+
+  if (
+    !normalized.startsWith("-----BEGIN PUBLIC KEY-----") ||
+    !normalized.endsWith("-----END PUBLIC KEY-----")
+  ) {
+    throw new Error("Invalid Conekta webhook public key PEM");
+  }
+
+  return normalized;
+}
+
+export function getWebhookKeyDiagnostics() {
+  const value = process.env.CONEKTA_WEBHOOK_SECRET;
+  if (!value) {
+    return { configured: false, hasPemBegin: false, hasPemEnd: false };
+  }
+
+  const normalized = value.trim().replace(/\\r\\n/g, "\n").replace(/\\n/g, "\n");
+  return {
+    configured: true,
+    hasPemBegin: normalized.includes("-----BEGIN PUBLIC KEY-----"),
+    hasPemEnd: normalized.includes("-----END PUBLIC KEY-----"),
+    storedWithEscapedNewlines: value.includes("\\n"),
+    characterCount: value.length,
+  };
 }
 
 export function verifyConektaWebhook(rawBody: string, digest: string): boolean {
