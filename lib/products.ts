@@ -7,7 +7,8 @@ export type Product = {
   unitPrice: number;
 };
 
-// Initial illustrative prices. Replace them with the approved MarmolMX CSV before production.
+// Server-side catalog synchronized from productos-coybe-marmolmx-hostinger.csv.
+// Prices are integer Mexican centavos and must never come from the browser.
 const products = {
   "compra-minima-prueba": {
     id: "compra-minima-prueba",
@@ -16,47 +17,89 @@ const products = {
     description: "Producto temporal para validar pagos reales con Conekta.",
     unitPrice: 10000,
   },
-  "cemento-cpc-50kg": {
-    id: "cemento-cpc-50kg",
-    name: "Cemento CPC 50 kg",
-    category: "Cemento",
-    description: "Saco de cemento CPC de 50 kg",
-    unitPrice: 28900,
+  "marmol-carrara-premium": {
+    id: "marmol-carrara-premium",
+    name: "Mármol Carrara Premium",
+    category: "Mármol",
+    description: "Placa premium para cubiertas, muros decorativos y acabados interiores de alto nivel.",
+    unitPrice: 299000,
   },
-  "varilla-3-8": {
-    id: "varilla-3-8",
-    name: "Varilla 3/8 pulg",
-    category: "Acero",
-    description: "Varilla corrugada para construcción",
-    unitPrice: 17900,
+  "marmol-travertino-beige": {
+    id: "marmol-travertino-beige",
+    name: "Mármol Travertino Beige",
+    category: "Mármol",
+    description: "Material elegante para pisos, muros y detalles arquitectónicos.",
+    unitPrice: 269000,
   },
-  "varilla-1-2": {
-    id: "varilla-1-2",
-    name: "Varilla 1/2 pulg",
-    category: "Acero",
-    description: "Varilla corrugada para construcción",
-    unitPrice: 30900,
+  "cubierta-de-cocina-premium": {
+    id: "cubierta-de-cocina-premium",
+    name: "Cubierta de Cocina Premium",
+    category: "Cubiertas",
+    description: "Cubierta fabricada a medida para cocinas residenciales y proyectos premium.",
+    unitPrice: 899000,
   },
-  "block-construccion": {
-    id: "block-construccion",
-    name: "Block de construcción",
-    category: "Block",
-    description: "Block de concreto para construcción",
-    unitPrice: 2200,
+  "piso-de-marmol-pulido": {
+    id: "piso-de-marmol-pulido",
+    name: "Piso de Mármol Pulido",
+    category: "Pisos",
+    description: "Acabado resistente y elegante para interiores residenciales o comerciales.",
+    unitPrice: 149000,
   },
-  "arena-m3": {
-    id: "arena-m3",
-    name: "Arena por m³",
-    category: "Agregados",
-    description: "Metro cúbico de arena para construcción",
-    unitPrice: 89000,
+  "granito-negro-san-gabriel": {
+    id: "granito-negro-san-gabriel",
+    name: "Granito Negro San Gabriel",
+    category: "Granito",
+    description: "Granito oscuro ideal para cubiertas, barras y superficies de alto uso.",
+    unitPrice: 199000,
   },
-  "grava-m3": {
-    id: "grava-m3",
-    name: "Grava por m³",
-    category: "Agregados",
-    description: "Metro cúbico de grava para construcción",
-    unitPrice: 99000,
+  "granito-gris-oxford": {
+    id: "granito-gris-oxford",
+    name: "Granito Gris Oxford",
+    category: "Granito",
+    description: "Superficie resistente con estética moderna para proyectos contemporáneos.",
+    unitPrice: 179000,
+  },
+  "lavabo-de-marmol-artesanal": {
+    id: "lavabo-de-marmol-artesanal",
+    name: "Lavabo de Mármol Artesanal",
+    category: "Baños",
+    description: "Pieza artesanal para baños premium y proyectos de diseño interior.",
+    unitPrice: 499000,
+  },
+  "escalon-de-marmol-a-medida": {
+    id: "escalon-de-marmol-a-medida",
+    name: "Escalón de Mármol a Medida",
+    category: "Escaleras",
+    description: "Escalón personalizado para residencias, edificios y espacios comerciales.",
+    unitPrice: 129000,
+  },
+  "piedra-natural-para-fachada": {
+    id: "piedra-natural-para-fachada",
+    name: "Piedra Natural para Fachada",
+    category: "Fachadas",
+    description: "Recubrimiento exterior para fachadas modernas y proyectos arquitectónicos.",
+    unitPrice: 139000,
+  },
+  "cuarzo-blanco-premium": {
+    id: "cuarzo-blanco-premium",
+    name: "Cuarzo Blanco Premium",
+    category: "Cuarzo",
+    description: "Material elegante y resistente para cocinas, baños y superficies premium.",
+    unitPrice: 249000,
+  },
+  "onix-iluminado-premium": {
+    id: "onix-iluminado-premium",
+    name: "Ónix Iluminado Premium",
+    category: "Ónix",
+    description: "Acabado decorativo exclusivo para muros, barras y espacios de alto impacto.",
+    unitPrice: 499000,
+  },
+  "recubrimiento-decorativo-premium": {
+    id: "recubrimiento-decorativo-premium",
+    name: "Recubrimiento Decorativo Premium",
+    category: "Recubrimientos",
+    description: "Solución decorativa para interiores, muros principales y proyectos comerciales.",
+    unitPrice: 179000,
   },
 } as const satisfies Record<string, Product>;
 
