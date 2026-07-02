@@ -1,6 +1,7 @@
 export type Product = {
   id: string;
   name: string;
+  category?: string;
   description: string;
   /** Price in Mexican centavos. Never accept this value from the browser. */
   unitPrice: number;
@@ -8,6 +9,13 @@ export type Product = {
 
 // Initial illustrative prices. Replace them with the approved MarmolMX CSV before production.
 const products = {
+  "compra-minima-prueba": {
+    id: "compra-minima-prueba",
+    name: "Compra mínima de prueba",
+    category: "Prueba",
+    description: "Producto temporal para validar pagos reales con Conekta.",
+    unitPrice: 10000,
+  },
   "cemento-cpc-50kg": {
     id: "cemento-cpc-50kg",
     name: "Cemento CPC 50 kg",
