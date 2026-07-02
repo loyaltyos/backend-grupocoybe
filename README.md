@@ -86,6 +86,10 @@ Para el Checkout embebido se usa `checkoutRequestId`. Ejemplo orientativo para l
 
 Este fragmento es documentación; no se ha conectado ni modificado Hostinger.
 
+El bloque completo y dinámico para la ruta `https://grupocoybe.com/pago?product=ID_DEL_PRODUCTO`
+está en `hostinger-checkout.html`. Consulta el producto mediante `GET /api/products/:id` y
+solo envía su ID al crear la orden; el precio del cobro siempre se recalcula en el backend.
+
 ## Webhook
 
 Configura en Conekta:

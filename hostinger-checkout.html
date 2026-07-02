@@ -1,0 +1,100 @@
+<!-- Pegar este bloque completo en Hostinger Builder > Embed Code. -->
+<div id="coybe-payment">
+  <style>
+    #coybe-payment{max-width:560px;margin:24px auto;font-family:Arial,sans-serif;color:#24352d}
+    #coybe-payment *{box-sizing:border-box}.coybe-card{padding:28px;background:#fff;border:1px solid #e2e7e4;border-radius:14px;box-shadow:0 8px 28px rgba(20,45,33,.08)}
+    #coybe-title{margin:0 0 6px;font-size:24px}.coybe-category{margin:0 0 12px;color:#276749;font-size:13px;font-weight:700;text-transform:uppercase}.coybe-description{margin:0 0 22px;color:#607069}
+    .coybe-field{margin-bottom:16px}.coybe-field label{display:block;margin-bottom:6px;font-size:14px;font-weight:600}.coybe-field input{width:100%;padding:12px 14px;font-size:16px;border:1px solid #cbd5d0;border-radius:8px}
+    #coybe-submit{width:100%;padding:14px 18px;color:#fff;font-size:16px;font-weight:700;background:#276749;border:0;border-radius:8px;cursor:pointer}#coybe-submit:disabled{opacity:.65;cursor:wait}
+    #coybe-message{min-height:22px;margin:16px 0 0;text-align:center;font-size:14px}.error{color:#b42318}.success{color:#276749}#conekta-checkout{display:none;width:100%;min-height:620px;margin-top:20px}
+  </style>
+
+  <div class="coybe-card">
+    <div id="coybe-form-section">
+      <p id="coybe-category" class="coybe-category"></p>
+      <h2 id="coybe-title">Cargando producto...</h2>
+      <p id="coybe-description" class="coybe-description"></p>
+      <form id="coybe-checkout-form" hidden novalidate>
+        <div class="coybe-field"><label for="coybe-name">Nombre completo</label><input id="coybe-name" type="text" minlength="2" maxlength="120" autocomplete="name" required></div>
+        <div class="coybe-field"><label for="coybe-email">Correo electrónico</label><input id="coybe-email" type="email" maxlength="254" autocomplete="email" required></div>
+        <div class="coybe-field"><label for="coybe-phone">Teléfono</label><input id="coybe-phone" type="tel" minlength="8" maxlength="20" placeholder="5512345678" autocomplete="tel" required></div>
+        <button id="coybe-submit" type="submit">Continuar al pago</button>
+      </form>
+      <p id="coybe-message" role="status" aria-live="polite"></p>
+    </div>
+    <div id="conekta-checkout"></div>
+  </div>
+
+  <script crossorigin src="https://pay.conekta.com/v1.0/js/conekta-checkout.min.js"></script>
+  <script>
+    (function () {
+      const API_BASE = "https://backend-grupocoybe.vercel.app/api";
+      const CONEKTA_PUBLIC_KEY = "TU_LLAVE_PUBLICA_CONEKTA";
+      const productId = new URLSearchParams(window.location.search).get("product")?.trim();
+      const form = document.getElementById("coybe-checkout-form");
+      const formSection = document.getElementById("coybe-form-section");
+      const submit = document.getElementById("coybe-submit");
+      const message = document.getElementById("coybe-message");
+      const checkout = document.getElementById("conekta-checkout");
+
+      function showError(text) { message.textContent = text; message.className = "error"; }
+      function setLoading(active) { submit.disabled = active; submit.textContent = active ? "Iniciando pago..." : submit.dataset.label; }
+      function formatPrice(centavos) { return new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(centavos / 100); }
+
+      async function loadProduct() {
+        if (!productId) {
+          document.getElementById("coybe-title").textContent = "Producto no especificado";
+          showError("Falta seleccionar un producto. Regresa al catálogo e inténtalo nuevamente.");
+          return;
+        }
+        try {
+          const response = await fetch(`${API_BASE}/products/${encodeURIComponent(productId)}`);
+          if (!response.ok) throw new Error("Product unavailable");
+          const product = await response.json();
+          document.getElementById("coybe-title").textContent = product.name;
+          document.getElementById("coybe-category").textContent = product.category;
+          document.getElementById("coybe-description").textContent = product.description;
+          submit.dataset.label = `Pagar ${formatPrice(product.price)} MXN`;
+          submit.textContent = submit.dataset.label;
+          form.hidden = false;
+        } catch {
+          document.getElementById("coybe-title").textContent = "Producto no disponible";
+          showError("No pudimos encontrar este producto. Regresa al catálogo e inténtalo nuevamente.");
+        }
+      }
+
+      form.addEventListener("submit", async function (event) {
+        event.preventDefault(); message.textContent = ""; message.className = "";
+        if (!form.checkValidity()) { form.reportValidity(); return; }
+        const customer = {
+          name: document.getElementById("coybe-name").value.trim(),
+          email: document.getElementById("coybe-email").value.trim(),
+          phone: document.getElementById("coybe-phone").value.trim()
+        };
+        if (customer.name.length < 2 || !/^\S+@\S+\.\S+$/.test(customer.email) || !/^\+?[0-9][0-9\s()-]{7,19}$/.test(customer.phone)) { showError("Revisa los datos ingresados."); return; }
+        if (!productId || CONEKTA_PUBLIC_KEY === "TU_LLAVE_PUBLICA_CONEKTA") { showError("No se pudo iniciar el pago"); return; }
+        setLoading(true);
+        try {
+          const response = await fetch(`${API_BASE}/conekta/create-order`, {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ productId: productId, quantity: 1, customer: customer })
+          });
+          if (!response.ok) throw new Error("Order unavailable");
+          const data = await response.json();
+          if (!data.checkoutRequestId || !window.ConektaCheckoutComponents?.Integration) throw new Error("Checkout unavailable");
+          formSection.style.display = "none"; checkout.style.display = "block";
+          window.ConektaCheckoutComponents.Integration({
+            config: { locale: "es", publicKey: CONEKTA_PUBLIC_KEY, targetIFrame: "#conekta-checkout", checkoutRequestId: data.checkoutRequestId },
+            callbacks: {
+              onFinalizePayment: function () { checkout.innerHTML = '<p class="success" style="text-align:center">Pago recibido. Estamos confirmando tu operación.</p>'; },
+              onErrorPayment: function () { checkout.style.display = "none"; formSection.style.display = "block"; setLoading(false); showError("No se pudo completar el pago. Inténtalo nuevamente."); }
+            },
+            options: { backgroundMode: "lightMode", colorPrimary: "#276749", colorText: "#24352d", colorLabel: "#50645a", inputType: "minimalMode", autoResize: true }
+          });
+        } catch { setLoading(false); showError("No se pudo iniciar el pago"); }
+      });
+
+      loadProduct();
+    })();
+  </script>
+</div>
