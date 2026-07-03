@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 const PRODUCTION_ORIGINS = new Set([
+  "https://backend-grupocoybe.vercel.app",
   "https://grupocoybe.com",
   "https://www.grupocoybe.com",
 ]);

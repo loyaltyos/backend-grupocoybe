@@ -20,7 +20,7 @@
   <script>
     (function () {
       const PRODUCTS_URL = "https://backend-grupocoybe.vercel.app/api/products";
-      const CHECKOUT_URL = "https://grupocoybe.com/pago";
+      const CHECKOUT_URL = "https://backend-grupocoybe.vercel.app/checkout";
       const grid = document.getElementById("coybe-product-grid");
       const status = document.getElementById("coybe-catalog-status");
 
@@ -66,7 +66,7 @@
         body.appendChild(textElement("p", "coybe-product-price", formatPrice(product.price)));
 
         const button = textElement("a", "coybe-buy-button", "Comprar con Conekta");
-        button.href = `${CHECKOUT_URL}#${encodeURIComponent(product.id)}`;
+        button.href = `${CHECKOUT_URL}?product=${encodeURIComponent(product.id)}`;
         button.target = "_top";
         button.rel = "noopener";
         button.setAttribute("aria-label", `Comprar ${product.name} con Conekta`);
