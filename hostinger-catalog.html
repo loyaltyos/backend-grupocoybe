@@ -1,0 +1,98 @@
+<!-- Pegar este bloque completo en Hostinger Builder > Embed Code. -->
+<section id="coybe-catalog" aria-labelledby="coybe-catalog-title">
+  <style>
+    #coybe-catalog{--green:#276749;--green-dark:#1f543b;--ink:#24352d;--muted:#66756e;--line:#e1e8e4;max-width:1180px;margin:36px auto;padding:0 16px;font-family:Arial,sans-serif;color:var(--ink)}
+    #coybe-catalog *{box-sizing:border-box}.coybe-catalog-head{text-align:center;margin-bottom:30px}.coybe-catalog-head h2{margin:0 0 10px;font-size:clamp(28px,4vw,40px);line-height:1.15}.coybe-catalog-head p{max-width:650px;margin:0 auto;color:var(--muted);font-size:16px;line-height:1.6}
+    #coybe-product-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}.coybe-product-card{display:flex;min-width:0;flex-direction:column;overflow:hidden;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 24px rgba(30,60,46,.07);transition:transform .2s ease,box-shadow .2s ease}.coybe-product-card:hover{transform:translateY(-4px);box-shadow:0 14px 34px rgba(30,60,46,.12)}
+    .coybe-product-media{position:relative;aspect-ratio:4/3;overflow:hidden;background:linear-gradient(135deg,#e8eee9,#d5e0da)}.coybe-product-media img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .35s ease}.coybe-product-card:hover img{transform:scale(1.035)}.coybe-image-fallback{display:flex;width:100%;height:100%;align-items:center;justify-content:center;color:#587065;font-size:14px;font-weight:700;letter-spacing:.04em}
+    .coybe-product-body{display:flex;flex:1;flex-direction:column;padding:20px}.coybe-product-category{margin:0 0 8px;color:var(--green);font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.coybe-product-name{margin:0 0 10px;font-size:21px;line-height:1.25}.coybe-product-description{display:-webkit-box;min-height:66px;margin:0 0 18px;overflow:hidden;color:var(--muted);font-size:14px;line-height:1.55;-webkit-box-orient:vertical;-webkit-line-clamp:3}.coybe-product-price{margin:auto 0 16px;font-size:23px;font-weight:800}.coybe-buy-button{display:block;width:100%;padding:13px 16px;color:#fff!important;background:var(--green);border-radius:9px;text-align:center;text-decoration:none!important;font-size:15px;font-weight:800;transition:background .2s ease}.coybe-buy-button:hover{background:var(--green-dark)}
+    #coybe-catalog-status{padding:42px 20px;color:var(--muted);text-align:center}.coybe-catalog-error{color:#b42318!important}
+    @media(max-width:900px){#coybe-product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:580px){#coybe-catalog{margin:24px auto;padding:0 12px}#coybe-product-grid{grid-template-columns:1fr;gap:18px}.coybe-product-card{border-radius:13px}}
+  </style>
+
+  <header class="coybe-catalog-head">
+    <h2 id="coybe-catalog-title">Catálogo Grupo Coybe</h2>
+    <p>Selecciona un producto y realiza tu compra de forma segura con Conekta.</p>
+  </header>
+  <p id="coybe-catalog-status" role="status" aria-live="polite">Cargando productos...</p>
+  <div id="coybe-product-grid"></div>
+
+  <script>
+    (function () {
+      const PRODUCTS_URL = "https://backend-grupocoybe.vercel.app/api/products";
+      const CHECKOUT_URL = "https://grupocoybe.com/pago";
+      const grid = document.getElementById("coybe-product-grid");
+      const status = document.getElementById("coybe-catalog-status");
+
+      function formatPrice(centavos) {
+        return new Intl.NumberFormat("es-MX", {
+          style: "currency",
+          currency: "MXN"
+        }).format(centavos / 100);
+      }
+
+      function textElement(tag, className, text) {
+        const element = document.createElement(tag);
+        element.className = className;
+        element.textContent = text;
+        return element;
+      }
+
+      function createCard(product) {
+        const card = document.createElement("article");
+        card.className = "coybe-product-card";
+
+        const media = document.createElement("div");
+        media.className = "coybe-product-media";
+        const fallback = textElement("div", "coybe-image-fallback", "GRUPO COYBE");
+        media.appendChild(fallback);
+
+        if (product.imageUrl) {
+          const image = document.createElement("img");
+          image.src = product.imageUrl;
+          image.alt = product.name;
+          image.loading = "lazy";
+          image.decoding = "async";
+          image.addEventListener("load", function () { fallback.remove(); });
+          image.addEventListener("error", function () { image.remove(); });
+          media.appendChild(image);
+        }
+
+        const body = document.createElement("div");
+        body.className = "coybe-product-body";
+        body.appendChild(textElement("p", "coybe-product-category", product.category));
+        body.appendChild(textElement("h3", "coybe-product-name", product.name));
+        body.appendChild(textElement("p", "coybe-product-description", product.description));
+        body.appendChild(textElement("p", "coybe-product-price", formatPrice(product.price)));
+
+        const button = textElement("a", "coybe-buy-button", "Comprar con Conekta");
+        button.href = `${CHECKOUT_URL}?product=${encodeURIComponent(product.id)}`;
+        button.setAttribute("aria-label", `Comprar ${product.name} con Conekta`);
+        body.appendChild(button);
+        card.appendChild(media);
+        card.appendChild(body);
+        return card;
+      }
+
+      async function loadCatalog() {
+        try {
+          const response = await fetch(PRODUCTS_URL, { method: "GET" });
+          if (!response.ok) throw new Error("Catalog unavailable");
+          const products = await response.json();
+          if (!Array.isArray(products) || products.length === 0) {
+            throw new Error("Empty catalog");
+          }
+          const fragment = document.createDocumentFragment();
+          products.forEach(function (product) { fragment.appendChild(createCard(product)); });
+          grid.replaceChildren(fragment);
+          status.hidden = true;
+        } catch {
+          status.textContent = "No pudimos cargar el catálogo. Inténtalo nuevamente más tarde.";
+          status.className = "coybe-catalog-error";
+        }
+      }
+
+      loadCatalog();
+    })();
+  </script>
+</section>
