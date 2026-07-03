@@ -4,9 +4,7 @@ import {
   forbiddenOriginResponse,
   isAllowedOrigin,
 } from "@/lib/cors";
-import { getProduct } from "@/lib/products";
-
-type RouteContext = { params: Promise<{ id: string }> };
+import { getSellableProducts } from "@/lib/products";
 
 export function OPTIONS(request: NextRequest) {
   const origin = request.headers.get("origin");
@@ -14,24 +12,18 @@ export function OPTIONS(request: NextRequest) {
   return new NextResponse(null, { status: 204, headers: corsHeaders(origin!) });
 }
 
-export async function GET(request: NextRequest, context: RouteContext) {
+export function GET(request: NextRequest) {
   const origin = request.headers.get("origin");
   if (!isAllowedOrigin(origin)) return forbiddenOriginResponse();
 
-  const { id } = await context.params;
-  const product = getProduct(id);
-  if (!product) {
-    return NextResponse.json(
-      { error: "Producto no encontrado" },
-      { status: 404, headers: corsHeaders(origin!) },
-    );
-  }
-
-  return NextResponse.json({
+  const products = getSellableProducts().map((product) => ({
+    id: product.id,
     name: product.name,
     description: product.description,
-    price: product.unitPrice,
     category: product.category,
-    ...(product.imageUrl ? { imageUrl: product.imageUrl } : {}),
-  }, { headers: corsHeaders(origin!) });
+    price: product.unitPrice,
+    imageUrl: product.imageUrl ?? "",
+  }));
+
+  return NextResponse.json(products, { headers: corsHeaders(origin!) });
 }
