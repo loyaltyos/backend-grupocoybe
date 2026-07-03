@@ -102,7 +102,8 @@ Suscribe al menos `order.paid`, `order.pending_payment` y `order.declined`. El e
 
 ## CORS y validación
 
-- Producción: solo `https://grupocoybe.com`.
+- Lectura de productos: permite navegación directa sin `Origin`, los dominios de Grupo Coybe y los orígenes HTTPS del builder/preview de Hostinger.
+- Creación de órdenes en producción: solo `https://grupocoybe.com` y `https://www.grupocoybe.com`.
 - Desarrollo: además `localhost` y `127.0.0.1`, con cualquier puerto.
 - Cantidad: entero entre 1 y 100.
 - El body es estricto; no se acepta `price`, `unitPrice` ni campos adicionales.

@@ -19,13 +19,13 @@ const requestSchema = z.object({
 export function OPTIONS(request: NextRequest) {
   const origin = request.headers.get("origin");
   if (!isAllowedOrigin(origin)) return forbiddenOriginResponse();
-  return new NextResponse(null, { status: 204, headers: corsHeaders(origin!) });
+  return new NextResponse(null, { status: 204, headers: corsHeaders(origin) });
 }
 
 export async function POST(request: NextRequest) {
   const origin = request.headers.get("origin");
   if (!isAllowedOrigin(origin)) return forbiddenOriginResponse();
-  const headers = corsHeaders(origin!);
+  const headers = corsHeaders(origin);
 
   try {
     const parsed = requestSchema.safeParse(await request.json());
