@@ -65,17 +65,11 @@
         body.appendChild(textElement("p", "coybe-product-description", product.description));
         body.appendChild(textElement("p", "coybe-product-price", formatPrice(product.price)));
 
-        const button = textElement("button", "coybe-buy-button", "Comprar con Conekta");
-        button.type = "button";
+        const button = textElement("a", "coybe-buy-button", "Comprar con Conekta");
+        button.href = `${CHECKOUT_URL}#${encodeURIComponent(product.id)}`;
+        button.target = "_top";
+        button.rel = "noopener";
         button.setAttribute("aria-label", `Comprar ${product.name} con Conekta`);
-        button.addEventListener("click", function () {
-          const checkoutUrl = `${CHECKOUT_URL}?product=${encodeURIComponent(product.id)}`;
-          try {
-            window.top.location.href = checkoutUrl;
-          } catch (error) {
-            window.parent.location.href = checkoutUrl;
-          }
-        });
         body.appendChild(button);
         card.appendChild(media);
         card.appendChild(body);

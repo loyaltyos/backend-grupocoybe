@@ -30,7 +30,10 @@
     (function () {
       const API_BASE = "https://backend-grupocoybe.vercel.app/api";
       const CONEKTA_PUBLIC_KEY = "TU_LLAVE_PUBLICA_CONEKTA";
-      const productId = new URLSearchParams(window.location.search).get("product")?.trim();
+      const productId =
+        window.location.hash.replace("#", "") ||
+        new URLSearchParams(window.location.search).get("product");
+      console.log("Producto recibido:", productId);
       const form = document.getElementById("coybe-checkout-form");
       const formSection = document.getElementById("coybe-form-section");
       const submit = document.getElementById("coybe-submit");
@@ -44,7 +47,7 @@
       async function loadProduct() {
         if (!productId) {
           document.getElementById("coybe-title").textContent = "Producto no especificado";
-          showError("Falta seleccionar un producto. Regresa al catálogo e inténtalo nuevamente.");
+          showError("No se recibió el producto seleccionado. Regresa al catálogo y vuelve a intentarlo.");
           return;
         }
         try {
@@ -59,7 +62,7 @@
           form.hidden = false;
         } catch {
           document.getElementById("coybe-title").textContent = "Producto no disponible";
-          showError("No pudimos encontrar este producto. Regresa al catálogo e inténtalo nuevamente.");
+          showError("No pudimos encontrar el producto indicado. Regresa al catálogo y vuelve a intentarlo.");
         }
       }
 
